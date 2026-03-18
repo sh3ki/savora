@@ -1,4 +1,4 @@
-package com.portfolio.savora
+package com.savora.app
 
 import io.flutter.embedding.android.FlutterActivity
 
