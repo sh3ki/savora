@@ -1,75 +1,84 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../models/recipe_model.dart';
 import '../theme/app_theme.dart';
 
 class RecipeCard extends StatelessWidget {
   final Recipe recipe;
+  final bool isLarge;
   final VoidCallback? onTap;
-  final ValueChanged<bool>? onFavoriteToggle;
-  final bool large;
+  final VoidCallback? onFavorite;
 
   const RecipeCard({
     super.key,
     required this.recipe,
+    this.isLarge = false,
     this.onTap,
-    this.onFavoriteToggle,
-    this.large = false,
+    this.onFavorite,
   });
 
   @override
   Widget build(BuildContext context) {
-    return large ? _LargeCard(recipe: recipe, onTap: onTap, onFavoriteToggle: onFavoriteToggle)
-                 : _CompactCard(recipe: recipe, onTap: onTap, onFavoriteToggle: onFavoriteToggle);
+    return isLarge ? _buildLargeCard() : _buildCompactCard();
   }
-}
 
-class _LargeCard extends StatelessWidget {
-  final Recipe recipe;
-  final VoidCallback? onTap;
-  final ValueChanged<bool>? onFavoriteToggle;
-
-  const _LargeCard({required this.recipe, this.onTap, this.onFavoriteToggle});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = AppTheme.categoryColors;
-    final color = colors[recipe.category.colorIndex % colors.length];
-
+  Widget _buildLargeCard() {
+    final color = AppTheme.categoryColors[recipe.category.colorIndex % AppTheme.categoryColors.length];
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 280,
-        margin: const EdgeInsets.only(right: 16),
+        width: 260,
+        margin: const EdgeInsets.only(right: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [AppTheme.cardShadow],
+          color: AppTheme.cardBg,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: AppTheme.cardShadow,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               height: 140,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [color.withOpacity(0.7), color.withOpacity(0.4)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
               ),
-              child: Stack(
-                children: [
-                  Center(child: Text(recipe.gradientEmoji, style: const TextStyle(fontSize: 60))),
-                  Positioned(
-                    top: 10, left: 10,
-                    child: _CategoryBadge(label: recipe.category.label, emoji: recipe.category.emoji),
-                  ),
-                  Positioned(
-                    top: 8, right: 8,
-                    child: _FavoriteButton(isFav: recipe.isFavorite, onToggle: onFavoriteToggle),
-                  ),
-                ],
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    _webImage(recipe.imageUrl),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.black.withOpacity(0.45), Colors.transparent],
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 10,
+                      right: 10,
+                      child: _favoriteButton(),
+                    ),
+                    Positioned(
+                      top: 10,
+                      left: 10,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          recipe.category.label,
+                          style: GoogleFonts.dmSans(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             Padding(
@@ -77,17 +86,22 @@ class _LargeCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(recipe.title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  Text(
+                    recipe.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.dmSans(color: AppTheme.textPrimary, fontSize: 15, fontWeight: FontWeight.w700),
+                  ),
                   const SizedBox(height: 6),
-                  Text(recipe.description, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]), maxLines: 2, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 10),
                   Row(
                     children: [
-                      _InfoChip(icon: Icons.timer_outlined, label: '${recipe.totalMinutes}m'),
-                      const SizedBox(width: 8),
-                      _InfoChip(icon: Icons.people_outline, label: '${recipe.servings}'),
-                      const SizedBox(width: 8),
-                      _InfoChip(icon: Icons.star_rounded, label: '${recipe.rating}', iconColor: Colors.amber),
+                      const Icon(Icons.schedule_rounded, color: AppTheme.textSecondary, size: 14),
+                      const SizedBox(width: 4),
+                      Text('${recipe.totalMinutes} min', style: GoogleFonts.dmSans(color: AppTheme.textSecondary, fontSize: 12)),
+                      const SizedBox(width: 12),
+                      const Icon(Icons.star_rounded, color: AppTheme.secondary, size: 14),
+                      const SizedBox(width: 2),
+                      Text('${recipe.rating}', style: GoogleFonts.dmSans(color: AppTheme.textSecondary, fontSize: 12)),
                     ],
                   ),
                 ],
@@ -98,71 +112,74 @@ class _LargeCard extends StatelessWidget {
       ),
     );
   }
-}
 
-class _CompactCard extends StatelessWidget {
-  final Recipe recipe;
-  final VoidCallback? onTap;
-  final ValueChanged<bool>? onFavoriteToggle;
-
-  const _CompactCard({required this.recipe, this.onTap, this.onFavoriteToggle});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = AppTheme.categoryColors;
-    final color = colors[recipe.category.colorIndex % colors.length];
-
+  Widget _buildCompactCard() {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [AppTheme.softShadow],
+          color: AppTheme.cardBg,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: AppTheme.cardShadow,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              flex: 5,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [color.withOpacity(0.7), color.withOpacity(0.35)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                ),
+              flex: 3,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
                 child: Stack(
+                  fit: StackFit.expand,
                   children: [
-                    Center(child: Text(recipe.gradientEmoji, style: const TextStyle(fontSize: 40))),
+                    _webImage(recipe.imageUrl),
                     Positioned(
-                      top: 6, right: 6,
-                      child: _FavoriteButton(isFav: recipe.isFavorite, onToggle: onFavoriteToggle, small: true),
+                      top: 8,
+                      right: 8,
+                      child: _favoriteButton(small: true),
+                    ),
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Colors.black.withOpacity(0.45), Colors.transparent],
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
             Expanded(
-              flex: 6,
+              flex: 2,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                padding: const EdgeInsets.all(10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(recipe.title, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700), maxLines: 2, overflow: TextOverflow.ellipsis),
+                    Text(
+                      recipe.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, height: 1.2),
+                    ),
                     const Spacer(),
                     Row(
                       children: [
-                        const Icon(Icons.timer_outlined, size: 12, color: Colors.grey),
+                        const Icon(Icons.schedule_rounded, color: AppTheme.textSecondary, size: 12),
                         const SizedBox(width: 3),
-                        Text('${recipe.totalMinutes}m', style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                        Text('${recipe.totalMinutes}m', style: GoogleFonts.dmSans(color: AppTheme.textSecondary, fontSize: 11)),
                         const Spacer(),
-                        const Icon(Icons.star_rounded, size: 12, color: Colors.amber),
+                        const Icon(Icons.star_rounded, color: AppTheme.secondary, size: 12),
                         const SizedBox(width: 2),
-                        Text('${recipe.rating}', style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                        Text('${recipe.rating}', style: GoogleFonts.dmSans(color: AppTheme.textSecondary, fontSize: 11)),
                       ],
                     ),
                   ],
@@ -174,61 +191,49 @@ class _CompactCard extends StatelessWidget {
       ),
     );
   }
-}
 
-class _CategoryBadge extends StatelessWidget {
-  final String label, emoji;
-  const _CategoryBadge({required this.label, required this.emoji});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text('$emoji $label', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
-    );
-  }
-}
-
-class _FavoriteButton extends StatelessWidget {
-  final bool isFav;
-  final ValueChanged<bool>? onToggle;
-  final bool small;
-
-  const _FavoriteButton({required this.isFav, this.onToggle, this.small = false});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _favoriteButton({bool small = false}) {
     return GestureDetector(
-      onTap: () => onToggle?.call(!isFav),
+      onTap: onFavorite,
       child: Container(
-        padding: EdgeInsets.all(small ? 4 : 6),
-        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-        child: Icon(isFav ? Icons.favorite : Icons.favorite_border, color: isFav ? Colors.red : Colors.grey, size: small ? 14 : 18),
+        width: small ? 28 : 32,
+        height: small ? 28 : 32,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.92),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(
+          recipe.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+          color: recipe.isFavorite ? AppTheme.primary : AppTheme.textSecondary,
+          size: small ? 16 : 18,
+        ),
       ),
     );
   }
-}
 
-class _InfoChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color iconColor;
-
-  const _InfoChip({required this.icon, required this.label, this.iconColor = const Color(0xFF6B7280)});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 13, color: iconColor),
-        const SizedBox(width: 3),
-        Text(label, style: TextStyle(fontSize: 11, color: Colors.grey[700])),
-      ],
+  Widget _webImage(String imageUrl) {
+    return Image.network(
+      imageUrl,
+      fit: BoxFit.cover,
+      loadingBuilder: (context, child, progress) {
+        if (progress == null) return child;
+        return Container(
+          color: AppTheme.surfaceAlt,
+          alignment: Alignment.center,
+          child: const SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        );
+      },
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          color: AppTheme.surfaceAlt,
+          alignment: Alignment.center,
+          child: const Icon(Icons.image_not_supported_rounded, color: AppTheme.textSecondary),
+        );
+      },
     );
   }
 }
