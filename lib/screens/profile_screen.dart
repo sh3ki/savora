@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '../data/mock_data.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import '../data/recipe_data.dart';
+import '../widgets/app_logo.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -10,231 +12,220 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  bool _notificationsEnabled = true;
-  bool _metricUnits = true;
+  bool _notifications = true;
+  bool _metric = false;
   bool _showCalories = true;
 
   @override
   Widget build(BuildContext context) {
-    final favorites = MockData.recipes.where((r) => r.isFavorite).length;
-    final categories = MockData.allCategories.length;
-
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF7ED),
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 220,
-            pinned: true,
-            backgroundColor: AppTheme.primary,
-            title: const Text('Profile', style: TextStyle(color: Colors.white, fontFamily: 'PlayfairDisplay', fontWeight: FontWeight.w700)),
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: BoxDecoration(gradient: AppTheme.heroGradient),
-                child: SafeArea(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 16),
-                      Container(
-                        width: 80, height: 80,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
-                        ),
-                        child: const Center(child: Text('👨‍🍳', style: TextStyle(fontSize: 40))),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text('Jordan Chef', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700, fontFamily: 'PlayfairDisplay')),
-                      const Text('Home Cook Enthusiast', style: TextStyle(color: Colors.white70, fontSize: 14)),
-                    ],
-                  ),
-                ),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            Text(
+              'Chef Profile',
+              style: GoogleFonts.playfairDisplay(
+                color: AppTheme.textPrimary,
+                fontSize: 34,
+                fontWeight: FontWeight.w700,
               ),
             ),
-          ),
+            const SizedBox(height: 20),
 
-          SliverToBoxAdapter(
-            child: Padding(
+            // Profile card
+            Container(
               padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppTheme.primary, AppTheme.spice],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Row(
                 children: [
-                  // Stats
                   Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    width: 60,
+                    height: 60,
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [AppTheme.softShadow],
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: Colors.white.withOpacity(0.5), width: 1.4),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _StatBox(value: '${MockData.recipes.length}', label: 'Recipes'),
-                        _Divider(),
-                        _StatBox(value: '$favorites', label: 'Favorites'),
-                        _Divider(),
-                        _StatBox(value: '$categories', label: 'Categories'),
-                      ],
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(17),
+                      child: Image.network(
+                        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=500&q=80',
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 24),
-
-                  // Preferences
-                  _SectionTitle('Preferences'),
-                  const SizedBox(height: 12),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [AppTheme.softShadow],
-                    ),
+                  const SizedBox(width: 14),
+                  Expanded(
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _Toggle(
-                          icon: Icons.notifications_outlined, label: 'Recipe Notifications',
-                          value: _notificationsEnabled, onChanged: (v) => setState(() => _notificationsEnabled = v),
-                        ),
-                        _Separator(),
-                        _Toggle(
-                          icon: Icons.straighten_outlined, label: 'Metric Units',
-                          value: _metricUnits, onChanged: (v) => setState(() => _metricUnits = v),
-                        ),
-                        _Separator(),
-                        _Toggle(
-                          icon: Icons.local_fire_department_outlined, label: 'Show Calories',
-                          value: _showCalories, onChanged: (v) => setState(() => _showCalories = v),
-                        ),
+                        Text('Jordan Chef', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w700)),
+                        const SizedBox(height: 2),
+                        Text('Home Cook Enthusiast', style: GoogleFonts.dmSans(color: Colors.white.withOpacity(0.84), fontSize: 13)),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
-
-                  // App settings
-                  _SectionTitle('App'),
-                  const SizedBox(height: 12),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [AppTheme.softShadow],
-                    ),
-                    child: Column(
-                      children: [
-                        _MenuItem(icon: Icons.star_rate_outlined, label: 'Rate Savora', onTap: () {}),
-                        _Separator(),
-                        _MenuItem(icon: Icons.share_outlined, label: 'Share with Friends', onTap: () {}),
-                        _Separator(),
-                        _MenuItem(icon: Icons.help_outline, label: 'Help & Support', onTap: () {}),
-                        _Separator(),
-                        _MenuItem(icon: Icons.info_outline, label: 'About', onTap: () => _showAbout(context)),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Version badge
-                  Center(
-                    child: Column(
-                      children: [
-                        const Text('👨‍🍳', style: TextStyle(fontSize: 28)),
-                        const SizedBox(height: 6),
-                        Text('Savora v1.0.0', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
-                        Text('Made with ❤️ for food lovers', style: TextStyle(color: Colors.grey[400], fontSize: 11)),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+                  Icon(Icons.edit_rounded, color: Colors.white.withOpacity(0.6), size: 20),
                 ],
               ),
             ),
-          ),
+            const SizedBox(height: 20),
+
+            // Stats
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.cardBg,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: AppTheme.cardShadow,
+              ),
+              child: Row(
+                children: [
+                  _stat('${RecipeData.recipes.length}', 'Recipes'),
+                  Container(width: 1, height: 36, color: AppTheme.divider),
+                  _stat('${RecipeData.favoriteRecipes.length}', 'Favorites'),
+                  Container(width: 1, height: 36, color: AppTheme.divider),
+                  _stat('${RecipeData.allCategories.length}', 'Categories'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Preferences
+            _sectionLabel('Preferences'),
+            _switchTile(Icons.notifications_none_rounded, 'Notifications', _notifications, (v) => setState(() => _notifications = v)),
+            _switchTile(Icons.straighten_rounded, 'Metric Units', _metric, (v) => setState(() => _metric = v)),
+            _switchTile(Icons.local_fire_department_rounded, 'Show Calories', _showCalories, (v) => setState(() => _showCalories = v)),
+            const SizedBox(height: 20),
+            _sectionLabel('Top Community Profiles'),
+            const SizedBox(height: 8),
+            _profileRow('Maya Chen', 'Pastry Artist', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=80'),
+            _profileRow('Diego Alvarez', 'Street Food Expert', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=500&q=80'),
+            _profileRow('Nadia Noor', 'Plant-Based Chef', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=500&q=80'),
+            const SizedBox(height: 20),
+
+            // Menu
+            _sectionLabel('App'),
+            _menuTile(Icons.star_outline_rounded, 'Rate App'),
+            _menuTile(Icons.share_outlined, 'Share App'),
+            _menuTile(Icons.help_outline_rounded, 'Help Center'),
+            _menuTile(Icons.info_outline_rounded, 'About'),
+            const SizedBox(height: 24),
+
+            // Footer
+            Center(
+              child: Column(
+                children: [
+                  const AppLogo(size: 28, showText: true),
+                  const SizedBox(height: 6),
+                  Text('Version 1.0.0', style: TextStyle(color: AppTheme.textSecondary.withOpacity(0.6), fontSize: 11)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _sectionLabel(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Text(text, style: GoogleFonts.dmSans(color: AppTheme.textSecondary, fontSize: 13, fontWeight: FontWeight.w700)),
+    );
+  }
+
+  Widget _switchTile(IconData icon, String title, bool value, ValueChanged<bool> onChanged) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppTheme.cardBg,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: AppTheme.cardShadow,
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: AppTheme.primary, size: 22),
+          const SizedBox(width: 12),
+          Expanded(child: Text(title, style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w700))),
+          Switch(value: value, onChanged: onChanged, activeColor: AppTheme.primary),
         ],
       ),
     );
   }
 
-  void _showAbout(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('About Savora', style: TextStyle(fontFamily: 'PlayfairDisplay', fontWeight: FontWeight.w700)),
-        content: const Text('Savora is your personal recipe companion — discover, cook, and savor delicious meals from around the world. Crafted with love for home cooks everywhere.'),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))],
+  Widget _menuTile(IconData icon, String title) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      decoration: BoxDecoration(
+        color: AppTheme.cardBg,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: AppTheme.cardShadow,
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: AppTheme.primary, size: 22),
+          const SizedBox(width: 12),
+          Expanded(child: Text(title, style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w700))),
+          const Icon(Icons.chevron_right_rounded, color: AppTheme.textSecondary, size: 20),
+        ],
       ),
     );
   }
-}
 
-class _StatBox extends StatelessWidget {
-  final String value, label;
-  const _StatBox({required this.value, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.primary)),
-        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-      ],
+  Widget _stat(String value, String label) {
+    return Expanded(
+      child: Column(
+        children: [
+          Text(value, style: GoogleFonts.dmSans(color: AppTheme.primary, fontSize: 18, fontWeight: FontWeight.w700)),
+          Text(label, style: GoogleFonts.dmSans(color: AppTheme.textSecondary, fontSize: 11)),
+        ],
+      ),
     );
   }
-}
 
-class _Divider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Container(width: 1, height: 40, color: Colors.grey[200]);
-}
-
-class _Separator extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Divider(height: 1, indent: 16, endIndent: 16, color: Colors.grey[100]);
-}
-
-class _SectionTitle extends StatelessWidget {
-  final String title;
-  const _SectionTitle(this.title);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, fontFamily: 'PlayfairDisplay'));
-  }
-}
-
-class _Toggle extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  const _Toggle({required this.icon, required this.label, required this.value, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon, color: AppTheme.primary),
-      title: Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
-      trailing: Switch(value: value, onChanged: onChanged, activeColor: AppTheme.primary),
-    );
-  }
-}
-
-class _MenuItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _MenuItem({required this.icon, required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      onTap: onTap,
-      leading: Icon(icon, color: AppTheme.primary),
-      title: Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
-      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+  Widget _profileRow(String name, String role, String imageUrl) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: AppTheme.cardShadow,
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(radius: 22, backgroundImage: NetworkImage(imageUrl)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: GoogleFonts.dmSans(fontWeight: FontWeight.w700)),
+                Text(role, style: GoogleFonts.dmSans(color: AppTheme.textSecondary, fontSize: 12)),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppTheme.primary.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(99),
+            ),
+            child: Text('View', style: GoogleFonts.dmSans(color: AppTheme.primary, fontWeight: FontWeight.w700, fontSize: 12)),
+          ),
+        ],
+      ),
     );
   }
 }
