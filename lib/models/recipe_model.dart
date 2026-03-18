@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 enum RecipeCategory {
   breakfast,
   lunch,
@@ -23,16 +25,16 @@ extension RecipeCategoryExt on RecipeCategory {
     }
   }
 
-  String get emoji {
+  IconData get icon {
     switch (this) {
-      case RecipeCategory.breakfast: return '🍳';
-      case RecipeCategory.lunch: return '🥗';
-      case RecipeCategory.dinner: return '🍽️';
-      case RecipeCategory.dessert: return '🍰';
-      case RecipeCategory.snacks: return '🥨';
-      case RecipeCategory.drinks: return '🥤';
-      case RecipeCategory.vegetarian: return '🥦';
-      case RecipeCategory.international: return '🌍';
+      case RecipeCategory.breakfast: return Icons.egg_alt_rounded;
+      case RecipeCategory.lunch: return Icons.lunch_dining_rounded;
+      case RecipeCategory.dinner: return Icons.dinner_dining_rounded;
+      case RecipeCategory.dessert: return Icons.cake_rounded;
+      case RecipeCategory.snacks: return Icons.cookie_rounded;
+      case RecipeCategory.drinks: return Icons.local_cafe_rounded;
+      case RecipeCategory.vegetarian: return Icons.eco_rounded;
+      case RecipeCategory.international: return Icons.public_rounded;
     }
   }
 
@@ -66,6 +68,7 @@ class Recipe {
   final String id;
   final String title;
   final String description;
+  final String imageUrl;
   final RecipeCategory category;
   final DifficultyLevel difficulty;
   final int prepMinutes;
@@ -79,12 +82,13 @@ class Recipe {
   final int calories;
   final bool isFeatured;
   bool isFavorite;
-  final String gradientEmoji;
+  final IconData? icon;
 
   Recipe({
     required this.id,
     required this.title,
     required this.description,
+    required this.imageUrl,
     required this.category,
     required this.difficulty,
     required this.prepMinutes,
@@ -98,7 +102,7 @@ class Recipe {
     required this.calories,
     this.isFeatured = false,
     this.isFavorite = false,
-    required this.gradientEmoji,
+    this.icon,
   });
 
   int get totalMinutes => prepMinutes + cookMinutes;
